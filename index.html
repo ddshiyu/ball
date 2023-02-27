@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .time{
+            padding-top:50px;
+            text-align: center;
+        }
+        body{
+            background:skyblue;
+        }
+        .box{
+            width:400px;
+            height:400px;
+            margin:100px auto;
+            background: #000;
+            border:1px solid #ccc;
+            position:relative;
+        }
+        .ball{
+            width:50px;
+            height: 50px;
+            border-radius:50%;
+            background: darkred;
+            left:50%;
+            top:50%;
+            
+            position:absolute;
+        }
+        .other{
+            width:30px;
+            height:30px;
+            background: darkgreen;
+            border-radius:50%;
+            position:absolute;
+        }
+    </style>
+</head>
+<body>
+    <div class="time">马上开始123</div>
+    <div class='box'>
+        <div class="ball"></div>
+    </div>
+</body>
+<script>
+    var game = {
+        ball:document.getElementsByClassName('ball')[0],
+        speedX:5,
+        speedY:5 ,
+        box:{
+            content:document.getElementsByClassName('box')[0],
+            mWidth:document.getElementsByClassName('box')[0].offsetWidth,
+            mHeight:document.getElementsByClassName('box')[0].offsetHeight,
+        },
+        init(){
+            this.creatBall(this.box);
+            this.dragBall()
+        },
+        creatBall:function(obj){
+            var self = this
+            var greenBall = obj
+            function Ball(move){
+                this.ball = document.createElement('div')
+                this.ball.className = 'other';
+                this.ball.style.top = 0 ; 
+                move.content.append(this.ball);
+                this.bLeft = Math.floor(Math.random()* (move.mWidth-this.ball.offsetWidth));
+                this.bSpeedX = Math.floor(Math.random()*(self.speedX)+1)
+                this.bSpeedY = Math.floor(Math.random()*(self.speedY)+1)
+                this.ball.style.left = this.bLeft + 'px';
+                this.bWidth = move.offsetWidth;
+                this.bHeight = move.offsetHeight;
+            }
+            var newBall = new Ball(greenBall);
+            self.moveBall(self.ball,newBall)
+            var timer = setInterval(function(){
+                var newBall = new Ball(greenBall);
+                self.moveBall(self.ball,newBall)
+            },1000)
+        },
+        moveBall:function(ball,obj){
+            var self = this;
+            var timer = setInterval(function(){
+                var newLeft = obj.bSpeedX + obj.ball.offsetLeft;
+                var newTop = obj.bSpeedY + obj.ball.offsetTop;
+                self.crashBall(ball,obj)
+                //console.log(obj.ball.offsetLeft)
+                if(newLeft > (self.box.mWidth - obj.ball.offsetWidth)){
+                    obj.bSpeedX = -obj.bSpeedX;
+                }
+                if(newLeft < 0){
+                    obj.bSpeedX = -obj.bSpeedX;
+                }
+                if(newTop > self.box.mHeight - obj.ball.offsetHeight){
+                    obj.bSpeedY= -obj.bSpeedY;
+                }
+                if(newTop < 0) {
+                    obj.bSpeedY= -obj.bSpeedY;
+                }
+                obj.ball.style.left = newLeft + 'px';
+                obj.ball.style.top = newTop+ 'px';
+                //console.log(newLeft)
+            },50)
+        },
+        dragBall:function(){
+            var self = this;
+            this.ball.onmousedown = function(e){
+                var e = e || window.event;
+                var on_x = e.pageX;
+                var on_y = e.pageY;
+                document.onmousemove = function (e){
+                    var e = e || window.event;
+                    self.ball.style.left = self.ball.offsetLeft + (e.pageX - on_x) + 'px';
+                    self.ball.style.top = self.ball.offsetTop + (e.pageY - on_y) + 'px';
+                    on_x = e.pageX;
+                    on_y = e.pageY;
+                    if(self.ball.offsetLeft < 0 ){
+                        alert('游戏结束')
+                        window.location.reload();
+                    };
+                    if(self.ball.offsetLeft + self.ball.offsetWidth > self.box.mWidth){
+                        alert('游戏结束')
+                        window.location.reload();
+                    }
+                    if(self.ball.offsetTop < 0 ){
+                        alert('游戏结束')
+                        window.location.reload();
+                    }
+                    if(self.ball.offsetTop + self.ball.offsetHeight > self.box.mHeight){
+                        alert('游戏结束')
+                        window.location.reload();
+                    }
+                  //  console.log(self.ball.offsetTop)
+                }
+                document.onmouseup = function(){
+                    document.onmousemove = null;
+                }
+            }
+        },
+        crashBall:function(red,green){
+            var disXX= Math.pow(((red.offsetLeft +red.offsetWidth/2 )- (green.ball.offsetLeft+green.ball.offsetWidth/2)),2);
+            var disYY = Math.pow(((red.offsetTop +red.offsetHeight/2 )- (green.ball.offsetTop+green.ball.offsetHeight/2)),2);
+            var current = Math.pow((disXX+disYY),1/2)
+            console.log(current)
+            if(current<40){
+                alert('游戏结束');
+                window.location.reload();
+            }
+        }
+    }
+    game.init()
+</script>
+</html>
